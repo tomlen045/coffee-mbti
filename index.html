@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>☕ 咖啡MBTI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(160deg,#FFF6EE,#FFE8F0);color:#3a2a1a;font-family:-apple-system,'PingFang SC',sans-serif;min-height:100vh}
+.w{max-width:480px;margin:0 auto;padding:24px 18px 60px}
+h1{font-size:25px;text-align:center;margin:10px 0 4px}
+.sub{text-align:center;color:#9c6b4a;font-size:13px;margin-bottom:22px}
+.c{background:#fff;border-radius:20px;padding:24px 20px;box-shadow:0 8px 24px rgba(139,94,60,.12);margin-bottom:16px}
+.q{font-size:18px;font-weight:bold;margin-bottom:16px;line-height:1.5}
+.o{display:block;width:100%;background:#FFF6EE;border:2px solid #F0DCC8;color:#3a2a1a;border-radius:14px;padding:14px;font-size:15px;margin-bottom:10px;cursor:pointer;text-align:left;transition:.15s}
+.o:active{background:#FFE3EC;border-color:#E8A87C}
+.bar{height:6px;background:#F0DCC8;border-radius:99px;margin-bottom:20px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#E8A87C,#D76D77);border-radius:99px;transition:.3s}
+.rn{font-size:32px;text-align:center;font-weight:900;margin:12px 0;color:#3a2a1a}
+.re{text-align:center;font-size:60px}
+.rd{font-size:15px;line-height:1.9;color:#6b4a2f;text-align:center}
+.ch{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.cp{background:#FFF3E6;border:1px solid #E8C4A0;border-radius:99px;padding:6px 14px;font-size:13px;color:#8B5E3C;font-weight:bold}
+.pct{font-size:13px;color:#9c6b4a;text-align:center;margin:8px 0}
+.bt{width:100%;background:linear-gradient(90deg,#D76D77,#E8A87C);color:#fff;border:none;border-radius:99px;padding:15px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:8px}
+.bt.g{background:#fff;color:#8B5E3C;border:2px solid #E8A87C}
+.ft{text-align:center;color:#c99b7a;font-size:12px;margin-top:20px}
+canvas{max-width:100%;display:none;margin:12px auto}
+</style></head><body><div class="w" id="app"></div>
+<script>
+const QS = [{"q": "早上一睁眼第一件事", "o": [["A", "想到咖啡才能起床"], ["B", "先喝水，咖啡 later"]]}, {"q": "你的本命", "o": [["B", "美式/冷萃，苦就是香"], ["A", "拿铁/澳白，奶才是灵魂"]]}, {"q": "下午3点困了", "o": [["A", "再来一杯，续命要紧"], ["B", "忍住，晚上要睡觉"]]}, {"q": "去咖啡店你点", "o": [["A", "常喝的那款，闭眼点"], ["B", "看看有没有新品，尝鲜"]]}, {"q": "咖啡对你的意义", "o": [["A", "没有咖啡我就是废物"], ["B", "社交工具，约人聊事的借口"]]}, {"q": "周末的咖啡", "o": [["A", "自己手冲，仪式感"], ["B", "还是点外卖，懒"]]}, {"q": "你对咖啡因", "o": [["A", "免疫了，喝完照样睡"], ["B", "下午2点后喝必失眠"]]}, {"q": "没有咖啡的世界", "o": [["A", "不能活"], ["B", "喝茶也行"]]}];
+const P = {"AAAA": ["咖啡因永动机", "一天五杯起步，血管里流的是espresso", "☕"], "AAAB": ["晨间仪式信徒", "咖啡不是饮料，是开启一天的开关", "🌅"], "AABA": ["清醒社交家", "咖啡是用来约人的，喝什么不重要", "💬"], "AABB": ["新品试毒官", "咖啡店上什么你喝什么，踩雷也开心", "🧪"], "ABAA": ["手冲原教旨", "水温92度，粉水比1:15，你懂的", "⚗️"], "ABAB": ["懒人外带派", "好喝就行，别跟我聊豆子产地", "🥡"], "ABAA2": ["苦味修行者", "美式越苦越提神，加奶是对咖啡的侮辱", "🖤"], "ABBB": ["茶咖啡两栖", "都行，看心情", "🔄"], "BAAA": ["咖啡因免疫体", "喝完照样倒头睡，天赋异禀", "💪"], "BAAB": ["敏感星人", "下午2点后沾一口咖啡，今夜失眠", "🌙"], "BABA": ["社交咖啡党", "咖啡是道具，聊天才是目的", "🗣"], "BABB": ["随缘派", "有就喝没有就算了", "🤷"], "BBAA": ["香氛爱好者", "你喜欢的是咖啡店的气味，不是咖啡", "👃"], "BBAB": ["拉花拍照党", "先拍照再喝，淡了也无所谓", "📸"], "BBBA": ["咖啡店自习员", "点一杯坐一天，老板都认识你了", "📚"], "BBBB": ["无咖啡星人", "你不喝咖啡，你只是来蹭空调的", "❄️"]};
+let cur = 0, ans = [];
+const app = document.getElementById("app");
+function home() {
+  app.innerHTML = `<h1>☕ 咖啡MBTI</h1><p class="sub">8道题 · 测出你的咖啡人格</p>
+  <div class="c"><p class="q">准备好了吗？</p>
+  <p style="font-size:14px;color:#9c6b4a;line-height:1.9">美式还是拿铁？你的咖啡偏好暴露了你的性格<br>做完看看你是哪种类型 🎯</p>
+  <button class="bt" onclick="start()">🎯 开始</button></div>
+  <p class="ft">🔍 搜「小薅薅」看更多</p>`;
+}
+function start(){cur=0;ans=[];render();}
+function render(){
+  const q=QS[cur];
+  app.innerHTML=`<div class="bar"><i style="width:${cur/QS.length*100}%"></i></div>
+  <div class="c"><p class="q">${q.q}</p>
+  ${q.o.map((o,i)=>`<button class="o" onclick="pick('${o[0]}')">${o[1]}</button>`).join("")}
+  </div>`;
+}
+function pick(k){ans.push(k);cur++;cur<QS.length?render():result();}
+function result(){
+  const c=ans.join("");const p=P[c]||["神秘人","你的组合太独特了"];
+  app.innerHTML=`<p class="re">${p[2]||"🎯"}</p><p class="rn">${p[0]}</p>
+  <div class="c"><p class="rd">${p[1]}</p>
+  <div class="ch"><span class="cp">你的代号 ${c}</span></div></div>
+  <canvas id="cd" width="1080" height="1440" style="display:none"></canvas>
+  <button class="bt" onclick="dlCard()">⬇️ 保存分享卡片</button>
+  <button class="bt g" onclick="home()">🔄 再测一次</button>
+  <p class="ft">🔍 搜「小薅薅」看更多</p>`;
+  drawCard(c,p);window.scrollTo(0,0);
+}
+function drawCard(code,p){
+  const x=document.getElementById("cd").getContext("2d");
+  const g=x.createLinearGradient(0,0,1080,1440);g.addColorStop(0,"#FFF6EE");g.addColorStop(1,"#FFD9E3");
+  x.fillStyle=g;x.fillRect(0,0,1080,1440);
+  x.textAlign="center";x.font="130px sans-serif";x.fillStyle="#3a2a1a";x.fillText(p[2]||"🎯",540,300);
+  x.font="900 80px sans-serif";x.fillStyle="#3a2a1a";x.fillText(p[0],540,480);
+  x.font="28px sans-serif";x.fillStyle="#8B5E3C";x.fillText(code,540,550);
+  x.font="32px sans-serif";x.fillStyle="#6b4a2f";
+  wrapTxt(x,p[1],540,640,880,48);
+  x.fillStyle="#8B5E3C";x.font="bold 30px sans-serif";x.fillText("🔍 搜「小薅薅」看更多",540,1360);
+}
+function wrapTxt(x,txt,cx,sy,maxw,lh){
+  let line="",y=sy;
+  for(const ch of txt){if(x.measureText(line+ch).width>maxw){x.fillText(line,cx,y);line=ch;y+=lh;}else line+=ch;}
+  x.fillText(line,cx,y);
+}
+function dlCard(){
+  const a=document.createElement("a");a.download="coffee-mbti-card.png";
+  a.href=document.getElementById("cd").toDataURL();a.click();
+}
+home();
+</script></body></html>
